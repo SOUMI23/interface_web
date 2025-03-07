@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 import torch
+import re
 
 # Initialisation de l'application FastAPI
 app = FastAPI()
@@ -10,10 +11,10 @@ app = FastAPI()
 # Ajouter CORS pour autoriser le frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Autorise toutes les origines (à restreindre en prod)
+    allow_origins=["*"],  
     allow_credentials=True,
-    allow_methods=["*"],  # Autorise toutes les méthodes (GET, POST, etc.)
-    allow_headers=["*"],  # Autorise tous les headers
+    allow_methods=["*"],  
+    allow_headers=["*"],  
 )
 
 # Chemin local du modèle
@@ -31,7 +32,7 @@ model, tokenizer = load_model()
 # Définition des données envoyées par l'utilisateur
 class QuestionRequest(BaseModel):
     text: str
-    question_types: list[str]  # Liste des types de questions sélectionnés
+    question_types: list[str]  
 
 # Fonction pour générer des questions
 import re
@@ -79,7 +80,7 @@ def split_into_sentences(text):
 # Fonction pour générer des questions et éviter les doublons
 def generate_multiple_questions(paragraph, model, tokenizer, device, question_types):
     questions = []
-    generated_questions_set = set()  # Utilisation d'un set pour éviter les doublons
+    generated_questions_set = set()  
 
     # Découper le texte en plusieurs phrases
     sentences = split_into_sentences(paragraph)
@@ -104,10 +105,10 @@ def generate_multiple_questions(paragraph, model, tokenizer, device, question_ty
 
             generated_question = tokenizer.decode(outputs[0], skip_special_tokens=True)
             
-            # Vérifier si la question a déjà été générée (pour éviter les doublons)
+            # Vérifier si la question a déjà été générée 
             if generated_question not in generated_questions_set:
                 questions.append({"type": q_type, "question": generated_question})
-                generated_questions_set.add(generated_question)  # Ajouter à l'ensemble des questions générées
+                generated_questions_set.add(generated_question)  
 
     return questions
 
