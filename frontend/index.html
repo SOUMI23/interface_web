@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Questions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color : #a14793;
+            background-color: #f8ebf7;
+            text-align: center;
+        }
+        .container {
+            background: white;
+            width: 50%;
+            margin: auto;
+            margin-top: 50px;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        textarea {
+            width: 90%;
+            height: 100px;
+            padding: 10px;
+            border: 2px solid #a67cad;
+            border-radius: 10px;
+            resize: none;
+            font-size: 16px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .checkbox-group {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .checkbox-group-title {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #5d3a74;
+        }
+        label {
+            margin: 0 10px;
+        }
+        button {
+            background: linear-gradient(to right, #a14793, #a14793);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 16px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .result {
+            margin-top: 20px;
+            text-align: left;
+            padding: 15px;
+            background: #f3e6f5;
+            border-radius: 10px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+        }
+        .question {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 5px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #a67cad;
+            padding-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Générateur de Questions</h2>
+        <textarea id="textInput" placeholder="Déposez la leçon sur laquelle vous voulez créer le questionnaire."></textarea>
+        <div class="checkbox-group-title">Choisissez vos types de questions :</div>
+        <div class="checkbox-group">
+            <label><input type="checkbox" id="definition" value="Définition"> Définition</label>
+            <label><input type="checkbox" id="facts" value="Faits"> Faits</label>
+            <label><input type="checkbox" id="synthesis" value="Synthèse"> Synthèse</label>
+        </div>
+        <button onclick="generateQuestions()">Générer</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        async function generateQuestions() {
+            const text = document.getElementById("textInput").value;
+            const questionTypes = [];
+            if (document.getElementById("definition").checked) questionTypes.push("Définition");
+            if (document.getElementById("facts").checked) questionTypes.push("Faits");
+            if (document.getElementById("synthesis").checked) questionTypes.push("Synthèse");
+            
+            if (text.trim() === "") {
+                alert("Veuillez entrer un texte.");
+                return;
+            }
+            
+            const response = await fetch("http://localhost:8000/generate_questions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ text, question_types: questionTypes })
+            });
+            
+            const data = await response.json();
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = "<h3>Questions Générées :</h3>";
+            
+            if (data.generated_questions.length > 0) {
+                data.generated_questions.forEach(q => {
+                    const p = document.createElement("div");
+                    p.classList.add("question");
+                    p.innerHTML = `<strong>${q.type} :</strong> ${q.question}`;
+                    resultDiv.appendChild(p);
+                });
+            } else {
+                resultDiv.textContent = "Aucune question générée.";
+            }
+        }
+    </script>
+</body>
+</html>
