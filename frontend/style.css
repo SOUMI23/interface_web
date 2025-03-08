@@ -26,13 +26,13 @@ textarea {
     box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.checkbox-group {
+.checkbox {
     margin-top: 10px;
     font-size: 16px;
     font-weight: bold;
 }
 
-.checkbox-group-title {
+.checkbox-title {
     margin-top: 20px;
     font-size: 18px;
     font-weight: bold;
